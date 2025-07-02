@@ -22,6 +22,12 @@ jobs:
         script: |
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
           cd /home/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
+
           git pull origin main
           npm install
+          npm run build
+
+          pm2 reload backend-dev || pm2 start dist/main.js --name backend-dev
+          pm2 save
