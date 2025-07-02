@@ -8,7 +8,17 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id              String   @id @default(uuid())
+  email           String   @unique
+  first_name      String
+  last_name       String?
+  password        String
+  role            String
+  instance        String
+  education_level String
+  email_validated Boolean
+  created_at      DateTime @db.DateTime()
+  updated_at      DateTime @updatedAt
+
+  @@map("users")
 }
