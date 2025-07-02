@@ -10,17 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout kode
+    - name: Checkout Kode
       uses: actions/checkout@v3
 
-    - name: Deploy ke VPS via SSH
+    - name: SSH dan Deploy ke VPS
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_SSH_KEY }}
         script: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           cd /home/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
           git pull origin main
-          cd /hom/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
           npm install
