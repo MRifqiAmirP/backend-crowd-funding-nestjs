@@ -22,5 +22,5 @@ jobs:
         script: |
           cd /home/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
           git pull origin main
-          cd ../../
+          cd /hom/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
           npm install
