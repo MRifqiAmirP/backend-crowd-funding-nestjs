@@ -26,7 +26,6 @@ jobs:
           cd /home/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
 
           git pull origin main
-          npm install
 
           pm2 reload backend-dev || pm2 start src/main.ts --name backend-dev --interpreter ./node_modules/.bin/ts-node
           pm2 save
