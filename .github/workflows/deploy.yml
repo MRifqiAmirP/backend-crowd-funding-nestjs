@@ -20,6 +20,7 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_SSH_KEY }}
         script: |
-          cd /home/proyeksiswa/repo
+          cd /home/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
           git pull origin main
+          npm install
           ./deploy.sh
