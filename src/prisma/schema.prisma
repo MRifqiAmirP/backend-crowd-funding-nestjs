@@ -17,8 +17,8 @@ model User {
   instance        String
   education_level String
   email_validated Boolean
-  created_at      DateTime @db.DateTime()
-  updated_at      DateTime @updatedAt
+  created_at      DateTime @default(now()) @db.DateTime()
+  updated_at DateTime @updatedAt
 
   @@map("users")
 }
