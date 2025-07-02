@@ -9,10 +9,10 @@ export class UserService {
 
   constructor(
     private prisma: PrismaService
-  ) { }
+  ) {}
 
   async create(data: CreateUserDto) {
-    return await this.prisma.user.create({ data });
+    return await this.prisma.user.create({data}) ;
   }
 
   async findAll() {
@@ -21,8 +21,8 @@ export class UserService {
 
   async findOneByEmail(email: string) {
     return await this.prisma.user.findUnique({
-      where: { email },
-    });
+    where: { email },
+  });
   }
 
   async findOne(id: string) {

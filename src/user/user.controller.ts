@@ -93,8 +93,8 @@ export class UserController {
     try {
       const loggedInUser = req.user;
 
-      if (loggedInUser.role !== 'admin' && loggedInUser.sub !== id) {
-        return ApiResponse.error('You are not authorized to delete this user');
+      if (loggedInUser.sub == id) {
+        return ApiResponse.error('You are not authorized to delete your own account');
       }
 
       await this.userService.remove(id);
