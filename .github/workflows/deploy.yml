@@ -23,4 +23,3 @@ jobs:
           cd /home/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
           git pull origin main
           npm install
-          ./deploy.sh
