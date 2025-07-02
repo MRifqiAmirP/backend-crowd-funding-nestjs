@@ -27,7 +27,6 @@ jobs:
 
           git pull origin main
           npm install
-          npm run build
 
-          pm2 reload backend-dev || pm2 start dist/main.js --name backend-dev
+          pm2 reload backend-dev || pm2 start src/main.ts --name backend-dev --interpreter ./node_modules/.bin/ts-node
           pm2 save
