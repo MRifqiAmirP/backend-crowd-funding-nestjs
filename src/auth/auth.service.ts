@@ -28,10 +28,10 @@ export class AuthService {
   }
 
   async register(registerDTO: RegisterDTO, res: Response): Promise<User> {
-    const existingEmail = await this.userService.findOneByEmail(registerDTO.email);
+    const existingEmail = await this.userService.checkEmailExists(registerDTO.email);
 
     if (existingEmail) {
-      throw new ConflictException('Email already in use');
+      throw new ConflictException('Email already in used by another user');
     }
     const hashed = await bcrypt.hash(registerDTO.password, 10);
     const newUser = await this.userService.create({
@@ -115,11 +115,6 @@ export class AuthService {
     res.clearCookie('id_token');
     res.clearCookie('refresh_token');
     return { message: 'Logout successful' };
-  }
-
-  async checkEmailExists(email: string): Promise<boolean> {
-    const user = await this.userService.findOneByEmail(email);
-    return !!user; 
   }
 }
 
