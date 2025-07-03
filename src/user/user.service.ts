@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import * as bcrypt from "bcrypt";
 
 
 @Injectable()
@@ -12,9 +13,13 @@ export class UserService {
   ) { }
 
   async create(data: CreateUserDto) {
+
+    const newPassword = await bcrypt.hash(data.password, 10);
+
     return await this.prisma.user.create({
       data: {
         ...data,
+        password: newPassword,
         email_validated: false
       }
     });
