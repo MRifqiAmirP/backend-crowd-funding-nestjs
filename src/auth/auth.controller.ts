@@ -8,8 +8,6 @@ import {
   HttpCode,
   HttpStatus,
   Get,
-  InternalServerErrorException,
-  UnauthorizedException,
   Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -22,6 +20,9 @@ import { plainToInstance } from 'class-transformer';
 import { RegisterDTO } from './dto/register.dto';
 import { ApiResponse } from 'src/common/response/api-response';
 import { AuthenticatedRequest } from 'src/common/interfaces/authenticated-request.interface';
+import { ForgotPasswordDTO } from './dto/forgot-password.dto';
+import * as path from 'path';
+import { ResetPasswordDto } from './dto/reset-password';
 
 @Controller('api/auth')
 export class AuthController {
@@ -49,9 +50,13 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
+      const dir = path.join(__dirname, 'mail', 'templates');
+
+      console.log(dir);
+
       const validatedUser = await this.authService.validatedUser(dto.email, dto.password);
       const result = await this.authService.login(validatedUser, res);
-      return ApiResponse.success({idToken: result.idToken},'User login successful');
+      return ApiResponse.success({ idToken: result.idToken }, 'User login successful');
     } catch (error) {
       this.logger.warn('Login failed:', error.message);
       return ApiResponse.error('Login failed', [error.message]);
@@ -72,6 +77,32 @@ export class AuthController {
       return ApiResponse.error('Token refresh failed', [error.message]);
     }
   }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(
+    @Body() forgotPasswordDTO: ForgotPasswordDTO
+  ) {
+    try {
+      await this.authService.forgotPassword(forgotPasswordDTO);
+      return ApiResponse.success(null, 'Password reset link sent to your email');
+    } catch (error) {
+      return ApiResponse.error('Failed to send password reset email', [error.message]);
+    }
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    try {
+      const result = await this.authService.resetPassword(resetPasswordDto);
+      return ApiResponse.success(result, 'Password reset successfully');
+    } catch (error) {
+      this.logger.warn('Reset password failed:', error.message);
+      return ApiResponse.error('Failed to reset password', [error.message]);
+    }
+  }
+
 
   @Post('logout')
   @UseGuards(JwtCookieRolesGuard)
