@@ -98,7 +98,7 @@ export class UserController {
       }
 
       await this.userService.remove(id);
-      return ApiResponse.success('User Deleted Successfully');
+      return ApiResponse.success([], 'User Deleted Successfully');
     } catch (error) {
       return ApiResponse.error('User Deleted failed', [error.message]);
     }
