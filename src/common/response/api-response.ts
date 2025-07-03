@@ -1,7 +1,7 @@
 export class ApiResponse {
   static success(data: any, message = 'Success') {
     return {
-      status: true,
+      success: true,
       message,
       data,
     };
@@ -9,7 +9,7 @@ export class ApiResponse {
 
   static error(message = 'Error', errors: any = null) {
     return {
-      status: false,
+      success: false,
       message,
       errors,
     };
