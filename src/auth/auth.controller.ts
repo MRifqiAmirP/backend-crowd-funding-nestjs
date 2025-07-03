@@ -50,8 +50,8 @@ export class AuthController {
   ) {
     try {
       const validatedUser = await this.authService.validatedUser(dto.email, dto.password);
-      const result = await this.authService.login(validatedUser, res);
-      return ApiResponse.success(result, 'User login successful');
+      await this.authService.login(validatedUser, res);
+      return ApiResponse.success([],'User login successful');
     } catch (error) {
       this.logger.warn('Login failed:', error.message);
       return ApiResponse.error('Login failed', [error.message]);
