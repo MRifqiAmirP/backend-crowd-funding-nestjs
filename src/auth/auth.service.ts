@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
@@ -6,6 +6,10 @@ import { User } from 'src/user/entities/user.entity';
 import { Auth } from './entities/auth.entity';
 import { Response, Request } from 'express';
 import { RegisterDTO } from './dto/register.dto';
+import { ForgotPasswordDTO } from './dto/forgot-password.dto';
+import { TokenService } from './utils/token.service';
+import { AuthMailService } from './mail/mail.service';
+import { ResetPasswordDto } from './dto/reset-password';
 
 
 @Injectable()
@@ -13,8 +17,10 @@ export class AuthService {
 
   constructor(
     private jwtService: JwtService,
-    private userService: UserService
-  ) {}
+    private userService: UserService,
+    private tokenService: TokenService,
+    private authMailService: AuthMailService
+  ) { }
 
   async validatedUser(email: string, password: string) {
     const user = await this.userService.findOneByEmail(email);
@@ -107,6 +113,41 @@ export class AuthService {
       return this.login(new User(user), res);
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async forgotPassword(forgotPasswordDTO: ForgotPasswordDTO) {
+    const user = await this.userService.findOneByEmail(forgotPasswordDTO.email);
+    if (!user) {
+      return;
+    }
+    const token = this.tokenService.generateResetToken({
+      sub: user.id,
+      email: user.email
+    });
+
+    await this.authMailService.sendResetPassword(user.email, token);
+  }
+
+  async resetPassword(resetPasswordDTO: ResetPasswordDto) {
+    try {
+      const payload = this.jwtService.verify(resetPasswordDTO.token, {
+        secret: process.env.JWT_RESET_SECRET,
+      });
+
+      const user = await this.userService.findOne(payload.sub);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const hashedPassword = await bcrypt.hash(resetPasswordDTO.newPassword, 10);
+      await this.userService.update(user.id, {
+        password: hashedPassword,
+      });
+
+      return { message: 'Password successfully reset' };
+    } catch (error) {
+      throw new BadRequestException('Invalid or expired token');
     }
   }
 
