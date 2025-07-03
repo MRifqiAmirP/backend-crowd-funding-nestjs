@@ -119,7 +119,7 @@ export class AuthService {
   async forgotPassword(forgotPasswordDTO: ForgotPasswordDTO) {
     const user = await this.userService.findOneByEmail(forgotPasswordDTO.email);
     if (!user) {
-      return;
+      return new NotFoundException("Email not found");
     }
     const token = this.tokenService.generateResetToken({
       sub: user.id,
