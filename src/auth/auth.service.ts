@@ -39,10 +39,10 @@ export class AuthService {
     if (existingEmail) {
       throw new ConflictException('Email already in used by another user');
     }
-    const hashed = await bcrypt.hash(registerDTO.password, 10);
+   
     const newUser = await this.userService.create({
       email: registerDTO.email,
-      password: hashed,
+      password: registerDTO.password,
       first_name: registerDTO.first_name,
       last_name: registerDTO.last_name,
       role: registerDTO.role,
