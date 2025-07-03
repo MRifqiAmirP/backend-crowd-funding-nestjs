@@ -36,5 +36,5 @@ jobs:
           fi
 
           # Jalankan aplikasi
-          pm2 reload backend-dev || pm2 start src/main.ts --name backend-dev --interpreter ./node_modules/.bin/ts-node
+          pm2 restart backend-dev || pm2 start src/main.ts --name backend-dev --interpreter ./node_modules/.bin/ts-node
           pm2 save
