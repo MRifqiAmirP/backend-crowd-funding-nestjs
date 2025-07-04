@@ -10,13 +10,14 @@ datasource db {
 model User {
   id              String   @id @default(uuid())
   email           String   @unique
-  first_name      String
-  last_name       String?
+  first_name      String   @db.VarChar(50)
+  last_name       String?  @db.VarChar(50)
   password        String
-  role            String
-  instance        String
-  education_level String
-  email_validated Boolean
+  role            String   @db.VarChar(15)
+  instance        String   @db.VarChar(100)
+  education_level String   @db.VarChar(15)
+  email_validated Boolean  @default(false)
+  foto_url        String?  @db.VarChar(100)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 
@@ -48,7 +49,7 @@ model Project {
 
 model Mtm_Project_Category {
   projectId  String
-  categoryId Int
+  categoryId String
 
   project  Project  @relation(fields: [projectId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
@@ -58,8 +59,8 @@ model Mtm_Project_Category {
 }
 
 model Category {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(20)
+  id            String @id @default(uuid())
+  category_name String @unique @db.VarChar(20)
 
   projects Mtm_Project_Category[]
 

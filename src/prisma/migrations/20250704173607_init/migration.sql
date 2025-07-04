@@ -2,13 +2,14 @@
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `first_name` VARCHAR(191) NOT NULL,
-    `last_name` VARCHAR(191) NULL,
+    `first_name` VARCHAR(50) NOT NULL,
+    `last_name` VARCHAR(50) NULL,
     `password` VARCHAR(191) NOT NULL,
-    `role` VARCHAR(191) NOT NULL,
-    `instance` VARCHAR(191) NOT NULL,
-    `education_level` VARCHAR(191) NOT NULL,
-    `email_validated` BOOLEAN NOT NULL,
+    `role` VARCHAR(15) NOT NULL,
+    `instance` VARCHAR(100) NOT NULL,
+    `education_level` VARCHAR(15) NOT NULL,
+    `email_validated` BOOLEAN NOT NULL DEFAULT false,
+    `foto_url` VARCHAR(100) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -37,16 +38,17 @@ CREATE TABLE `projects` (
 -- CreateTable
 CREATE TABLE `mtm_project_category` (
     `projectId` VARCHAR(191) NOT NULL,
-    `categoryId` INTEGER NOT NULL,
+    `categoryId` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`projectId`, `categoryId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `categories` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(20) NOT NULL,
+    `id` VARCHAR(191) NOT NULL,
+    `category_name` VARCHAR(20) NOT NULL,
 
+    UNIQUE INDEX `categories_category_name_key`(`category_name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
