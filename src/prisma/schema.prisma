@@ -17,8 +17,64 @@ model User {
   instance        String
   education_level String
   email_validated Boolean
-  created_at      DateTime @default(now()) @db.DateTime()
-  updated_at DateTime @updatedAt
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  projects Project[]
 
   @@map("users")
+}
+
+model Project {
+  id               String   @id @default(uuid())
+  userId           String
+  projectName      String   @db.VarChar(100)
+  provider         String   @db.VarChar(100)
+  educationLevel   String   @db.VarChar(20)
+  institutionName  String   @db.VarChar(100)
+  shortDescription String
+  fullDescription  String
+  aboutProject     String
+  target           Int
+  deadline         DateTime @db.Date
+  createdAt        DateTime @default(now())
+
+  user       User                   @relation(fields: [userId], references: [id])
+  galleries  Gallery[]
+  categories Mtm_Project_Category[]
+
+  @@map("projects")
+}
+
+model Mtm_Project_Category {
+  projectId  String
+  categoryId Int
+
+  project  Project  @relation(fields: [projectId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([projectId, categoryId])
+  @@map("mtm_project_category")
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(20)
+
+  projects Mtm_Project_Category[]
+
+  @@map("categories")
+}
+
+model Gallery {
+  id         Int      @id @default(autoincrement())
+  projectId  String
+  title      String   @db.VarChar(100)
+  image      Bytes
+  caption    String?  @db.VarChar(255)
+  uploadedAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@map("galleries")
 }
