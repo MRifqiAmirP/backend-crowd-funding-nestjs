@@ -36,6 +36,7 @@ jobs:
           fi
 
           npm run build
+          npm run prisma:generate
 
           # Jalankan aplikasi
           # pm2 restart backend-dev || pm2 start src/main.ts --name backend-dev --interpreter ./node_modules/.bin/ts-node
