@@ -24,9 +24,10 @@ export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Post('/create')
-  async create(@Body() dto: CreateProjectDto) {
+  async create(@Body() dto: CreateProjectDto, @Req() req: AuthenticatedRequest) {
     try {
-      const project = await this.projectService.create(dto);
+      const userId = req.user.sub
+      const project = await this.projectService.create(dto, userId);
       return ApiResponse.success(project, 'Project created successfully');
     } catch (error) {
       console.error('Create project error:', error);

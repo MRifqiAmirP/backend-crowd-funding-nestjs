@@ -37,4 +37,7 @@ export class CreateProjectDto {
 
   @IsDateString()
   deadline: string;
+
+  @IsString({ each: true })
+  categoryNames: string[];
 }
