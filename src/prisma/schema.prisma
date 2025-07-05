@@ -79,3 +79,30 @@ model Gallery {
 
   @@map("galleries")
 }
+
+model Blog {
+  id             String  @id @default(uuid())
+  userId         String 
+  blogCategoryId String
+  title          String
+  slug           String
+  content        String
+  thumbnail      String
+  status         String
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  category    Blog_Category   @relation(fields: [blogCategoryId], references: [id])
+
+  @@map("blogs")
+}
+
+model Blog_Category {
+  id        String  @id @default(uuid())
+  name      String
+
+  blogs     Blog[]
+
+  @@map("blog_categories")
+}
