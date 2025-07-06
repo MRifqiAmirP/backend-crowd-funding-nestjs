@@ -71,8 +71,8 @@ model Category {
 model Gallery {
   id         String   @id @default(uuid())
   projectId  String
-  title      String
-  imageUrl      String   @db.VarChar(200)
+  title      String   @db.VarChar(100)
+  imageUrl   String   @db.VarChar(200)
   caption    String?  @db.VarChar(255)
   uploadedAt DateTime @default(now())
 
@@ -82,8 +82,8 @@ model Gallery {
 }
 
 model Blog {
-  id             String  @id @default(uuid())
-  userId         String 
+  id             String @id @default(uuid())
+  userId         String
   blogCategoryId String
   title          String
   slug           String
@@ -91,19 +91,19 @@ model Blog {
   thumbnail      String
   status         String
 
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  category    Blog_Category   @relation(fields: [blogCategoryId], references: [id])
+  category Blog_Category @relation(fields: [blogCategoryId], references: [id])
 
   @@map("blogs")
 }
 
 model Blog_Category {
-  id        String  @id @default(uuid())
-  name      String
+  id   String @id @default(uuid())
+  name String
 
-  blogs     Blog[]
+  blogs Blog[]
 
   @@map("blog_categories")
 }
