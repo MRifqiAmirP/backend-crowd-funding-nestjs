@@ -38,6 +38,7 @@ model Project {
   aboutProject     String
   target           Int
   deadline         DateTime @db.Date
+  thumbnailUrl     String?  @db.VarChar(100)
   createdAt        DateTime @default(now())
 
   user       User                   @relation(fields: [userId], references: [id])
@@ -68,10 +69,10 @@ model Category {
 }
 
 model Gallery {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(uuid())
   projectId  String
   title      String   @db.VarChar(100)
-  image      Bytes
+  imageUrl   String   @db.VarChar(200)
   caption    String?  @db.VarChar(255)
   uploadedAt DateTime @default(now())
 

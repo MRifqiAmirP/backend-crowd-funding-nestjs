@@ -37,10 +37,11 @@ jobs:
 
           pm2 stop all
 
-          npm run build
           npm run prisma:generate
+          npm run build
 
           # Jalankan aplikasi
           # pm2 restart backend-dev || pm2 start src/main.ts --name backend-dev --interpreter ./node_modules/.bin/ts-node
+          pm2 flush
           pm2 restart all || pm2 start dist/main.js --name backend-dev
           pm2 save
