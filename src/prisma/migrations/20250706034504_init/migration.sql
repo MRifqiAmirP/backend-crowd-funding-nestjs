@@ -30,6 +30,7 @@ CREATE TABLE `projects` (
     `aboutProject` VARCHAR(191) NOT NULL,
     `target` INTEGER NOT NULL,
     `deadline` DATE NOT NULL,
+    `thumbnailUrl` VARCHAR(100) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
@@ -54,12 +55,36 @@ CREATE TABLE `categories` (
 
 -- CreateTable
 CREATE TABLE `galleries` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `projectId` VARCHAR(191) NOT NULL,
     `title` VARCHAR(100) NOT NULL,
-    `image` LONGBLOB NOT NULL,
+    `imageUrl` VARCHAR(200) NOT NULL,
     `caption` VARCHAR(255) NULL,
     `uploadedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `blogs` (
+    `id` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `blogCategoryId` VARCHAR(191) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `content` VARCHAR(191) NOT NULL,
+    `thumbnail` VARCHAR(191) NOT NULL,
+    `status` VARCHAR(191) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `blog_categories` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -75,3 +100,6 @@ ALTER TABLE `mtm_project_category` ADD CONSTRAINT `mtm_project_category_category
 
 -- AddForeignKey
 ALTER TABLE `galleries` ADD CONSTRAINT `galleries_projectId_fkey` FOREIGN KEY (`projectId`) REFERENCES `projects`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `blogs` ADD CONSTRAINT `blogs_blogCategoryId_fkey` FOREIGN KEY (`blogCategoryId`) REFERENCES `blog_categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
