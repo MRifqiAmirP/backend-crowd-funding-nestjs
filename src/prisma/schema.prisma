@@ -81,28 +81,39 @@ model Gallery {
 }
 
 model Blog {
-  id             String  @id @default(uuid())
-  userId         String 
-  blogCategoryId String
-  title          String
-  slug           String
-  content        String
-  thumbnail      String
-  status         String
+  id         String            @id @default(uuid())
+  userId     String
+  title      String
+  slug       String
+  content    String
+  thumbnail  String
+  status     String
 
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  created_at DateTime          @default(now())
+  updated_at DateTime          @updatedAt
 
-  category    Blog_Category   @relation(fields: [blogCategoryId], references: [id])
+  categories mtm_Blog_Category[]
 
   @@map("blogs")
 }
 
 model Blog_Category {
-  id        String  @id @default(uuid())
-  name      String
+  id    String              @id @default(uuid())
+  name  String
 
-  blogs     Blog[]
+  blogs mtm_Blog_Category[]
 
   @@map("blog_categories")
+}
+
+model mtm_Blog_Category {
+  id         String         @id @default(uuid())
+  blogId     String
+  categoryId String
+
+  blog       Blog           @relation(fields: [blogId], references: [id])
+  category   Blog_Category  @relation(fields: [categoryId], references: [id])
+
+  @@unique([blogId, categoryId])
+  @@map("mtm_blog_category")
 }
