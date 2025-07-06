@@ -1,21 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import slugify from 'slugify';
 
-
 @Injectable()
 export class BlogService {
-
-  constructor(
-    private prisma: PrismaService
-  ) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createBlogDto: CreateBlogDto, userId: string) {
+    const firstCategoryId = createBlogDto.blog_categoryIds?.[0];
+
+    if (!firstCategoryId) {
+      throw new BadRequestException('At least one category ID is required');
+    }
+
     const category = await this.prisma.blog_Category.findUnique({
       where: {
-        id: createBlogDto.blog_categoryId,
+        id: firstCategoryId, // ✅ FIXED
       },
     });
 
@@ -32,11 +34,13 @@ export class BlogService {
       data: {
         ...createBlogDto,
         slug: generatedSlug,
-        blogCategoryId: createBlogDto.blog_categoryId,
         userId,
+        categories: {
+          connect: createBlogDto.blog_categoryIds.map((id) => ({ id })),
+        },
       },
       include: {
-        category: true,
+        categories: true,
       },
     });
 
@@ -44,30 +48,37 @@ export class BlogService {
   }
 
   async findAll() {
-    return await this.prisma.blog.findMany({
+    return this.prisma.blog.findMany({
       include: {
-        category: true
-      }
+        categories: true,
+      },
     });
   }
 
   async findOne(id: string) {
     return await this.prisma.blog.findUnique({
       where: {
-        id
-      }
+        id,
+      },
+      include: {
+        categories: true,
+      },
     });
   }
 
-  async findByCategory(blogCategoryId: string) {
-    return await this.prisma.blog.findMany({
+  async findByCategory(categoryId: string) {
+    return this.prisma.blog.findMany({
       where: {
-        blogCategoryId
+        categories: {
+          some: {
+            categoryId: categoryId,
+          },
+        },
       },
       include: {
-        category: true
-      }
-    })
+        categories: true,
+      },
+    });
   }
 
   async update(id: string, updateBlogDto: UpdateBlogDto) {
@@ -77,35 +88,38 @@ export class BlogService {
       throw new NotFoundException('Blog not found');
     }
 
-    if (updateBlogDto.blog_categoryId) {
-      const category = await this.prisma.blog_Category.findUnique({
-        where: { id: updateBlogDto.blog_categoryId },
+    if (updateBlogDto.blog_categoryIds) {
+      const categoriesExist = await this.prisma.blog_Category.findMany({
+        where: { id: { in: updateBlogDto.blog_categoryIds } },
       });
 
-      if (!category) {
-        throw new NotFoundException('Category not found');
+      if (categoriesExist.length !== updateBlogDto.blog_categoryIds.length) {
+        throw new NotFoundException('Some categories not found');
       }
     }
 
-    const blog = await this.prisma.blog.update({
+    const updatedBlog = await this.prisma.blog.update({
       where: { id },
       data: {
         ...updateBlogDto,
         updated_at: new Date(),
+        categories: {
+          set: updateBlogDto.blog_categoryIds?.map((id) => ({ id })) || [],
+        },
       },
       include: {
-        category: true,
+        categories: true,
       },
     });
 
-    return blog;
+    return updatedBlog;
   }
 
   async remove(id: string) {
     return await this.prisma.blog.delete({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
   }
 }

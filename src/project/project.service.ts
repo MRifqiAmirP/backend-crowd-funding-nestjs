@@ -8,6 +8,7 @@ import { Category } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
 import { join } from 'path';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ProjectService {

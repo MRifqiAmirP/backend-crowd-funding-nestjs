@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { ArrayNotEmpty, IsArray, isArray, IsNotEmpty, IsString, IsUUID } from "class-validator";
 
 export class CreateBlogDto {
     @IsNotEmpty()
@@ -21,7 +21,8 @@ export class CreateBlogDto {
     @IsString()
     status: string;
 
-    @IsNotEmpty()
-    @IsUUID()
-    blog_categoryId: string;
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsUUID('all', { each: true })
+    blog_categoryIds: string[]; 
 }

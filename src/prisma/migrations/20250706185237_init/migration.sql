@@ -70,7 +70,7 @@ CREATE TABLE `project_comments` (
     `id` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
     `projectId` VARCHAR(191) NOT NULL,
-    `comentar` LONGTEXT NOT NULL,
+    `commentar` LONGTEXT NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
@@ -80,7 +80,6 @@ CREATE TABLE `project_comments` (
 CREATE TABLE `blogs` (
     `id` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
-    `blogCategoryId` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `slug` VARCHAR(191) NOT NULL,
     `content` VARCHAR(191) NOT NULL,
@@ -97,6 +96,16 @@ CREATE TABLE `blog_categories` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
 
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `mtm_blog_category` (
+    `id` VARCHAR(191) NOT NULL,
+    `blogId` VARCHAR(191) NOT NULL,
+    `categoryId` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `mtm_blog_category_blogId_categoryId_key`(`blogId`, `categoryId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -119,4 +128,7 @@ ALTER TABLE `project_comments` ADD CONSTRAINT `project_comments_userId_fkey` FOR
 ALTER TABLE `project_comments` ADD CONSTRAINT `project_comments_projectId_fkey` FOREIGN KEY (`projectId`) REFERENCES `projects`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `blogs` ADD CONSTRAINT `blogs_blogCategoryId_fkey` FOREIGN KEY (`blogCategoryId`) REFERENCES `blog_categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `mtm_blog_category` ADD CONSTRAINT `mtm_blog_category_blogId_fkey` FOREIGN KEY (`blogId`) REFERENCES `blogs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `mtm_blog_category` ADD CONSTRAINT `mtm_blog_category_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `blog_categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
