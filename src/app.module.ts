@@ -8,9 +8,11 @@ import { ProjectModule } from './project/project.module';
 import { CategoryModule } from './category/category.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { CommentarProjectModule } from './commentar-project/commentar-project.module';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
   imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, GalleryModule, CommentarProjectModule],
+  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, BlogModule],
   controllers: [AppController],
   providers: [AppService],
 })

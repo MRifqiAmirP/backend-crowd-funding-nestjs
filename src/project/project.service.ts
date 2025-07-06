@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -11,18 +11,16 @@ import { join } from 'path';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private userService: UserService
+  ) {}
 
   async create(dto: CreateProjectDto, userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await this.userService.findOne(userId)
 
     if (!user) {
-      throw new HttpException(
-        ApiResponse.error('User not found', `Invalid userId: ${userId}`),
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new NotFoundException(`User with userId: ${userId} not found`);
     }
 
     if (dto.categoryNames && dto.categoryNames.length > 0) {
