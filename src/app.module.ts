@@ -11,8 +11,7 @@ import { CommentarProjectModule } from './commentar-project/commentar-project.mo
 import { BlogModule } from './blog/blog.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, GalleryModule, CommentarProjectModule],
-  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, BlogModule],
+  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, GalleryModule, CommentarProjectModule, BlogModule],
   controllers: [AppController],
   providers: [AppService],
 })
