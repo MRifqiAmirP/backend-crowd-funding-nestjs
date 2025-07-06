@@ -395,7 +395,6 @@ export class ProjectService {
     }
 
     const result = await this.prisma.$transaction(async (prisma) => {
-      // Update project fields
       await prisma.project.update({
         where: { id },
         data: {

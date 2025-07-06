@@ -87,7 +87,7 @@ model ProjectComments {
   id String @id @default(uuid())
   userId String
   projectId String
-  comentar String @db.LongText
+  commentar String @db.LongText
   created_at DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
