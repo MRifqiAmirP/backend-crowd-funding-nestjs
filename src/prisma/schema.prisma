@@ -22,6 +22,7 @@ model User {
   updated_at      DateTime @updatedAt
 
   projects Project[]
+  comentar ProjectComments[]
 
   @@map("users")
 }
@@ -44,6 +45,7 @@ model Project {
   user       User                   @relation(fields: [userId], references: [id])
   galleries  Gallery[]
   categories Mtm_Project_Category[]
+  comentar ProjectComments[]
 
   @@map("projects")
 }
@@ -79,6 +81,19 @@ model Gallery {
   project Project @relation(fields: [projectId], references: [id])
 
   @@map("galleries")
+}
+
+model ProjectComments {
+  id String @id @default(uuid())
+  userId String
+  projectId String
+  comentar String @db.LongText
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@map("project_comments")
 }
 
 model Blog {
