@@ -122,6 +122,24 @@ CREATE TABLE `mtm_blog_category` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `fundings` (
+    `id` VARCHAR(191) NOT NULL,
+    `supportPackageId` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `projectId` VARCHAR(191) NOT NULL,
+    `amount` INTEGER NOT NULL,
+    `fundingType` VARCHAR(191) NOT NULL,
+    `paymentType` VARCHAR(191) NULL,
+    `status` VARCHAR(191) NOT NULL,
+    `orderId` VARCHAR(191) NOT NULL,
+    `snapToken` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `fundings_orderId_key`(`orderId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `projects` ADD CONSTRAINT `projects_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -148,3 +166,12 @@ ALTER TABLE `mtm_blog_category` ADD CONSTRAINT `mtm_blog_category_blogId_fkey` F
 
 -- AddForeignKey
 ALTER TABLE `mtm_blog_category` ADD CONSTRAINT `mtm_blog_category_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `blog_categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `fundings` ADD CONSTRAINT `fundings_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `fundings` ADD CONSTRAINT `fundings_projectId_fkey` FOREIGN KEY (`projectId`) REFERENCES `projects`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `fundings` ADD CONSTRAINT `fundings_supportPackageId_fkey` FOREIGN KEY (`supportPackageId`) REFERENCES `support_packages`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

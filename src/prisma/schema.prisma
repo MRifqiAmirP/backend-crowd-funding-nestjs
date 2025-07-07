@@ -23,8 +23,7 @@ model User {
 
   projects Project[]
   comentar ProjectComments[]
-    funding Funding[]
-
+  funding  Funding[]
 
   @@map("users")
 }
@@ -44,12 +43,12 @@ model Project {
   thumbnailUrl     String?  @db.VarChar(100)
   createdAt        DateTime @default(now())
 
-  user       User                   @relation(fields: [userId], references: [id])
-  galleries  Gallery[]
-  categories Mtm_Project_Category[]
-  comentar ProjectComments[]
+  user            User                   @relation(fields: [userId], references: [id])
+  galleries       Gallery[]
+  categories      Mtm_Project_Category[]
+  comentar        ProjectComments[]
   supportPackages SupportPackage[]
-  funding Funding[]
+  funding         Funding[]
 
   @@map("projects")
 }
@@ -88,46 +87,45 @@ model Gallery {
 }
 
 model SupportPackage {
-  id String @id @default(uuid())
-  projectId String
+  id          String @id @default(uuid())
+  projectId   String
   packageName String @db.VarChar(100)
-  nominal Int
-  benefit String @db.LongText
+  nominal     Int
+  benefit     String @db.LongText
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  project Project @relation(fields: [projectId], references: [id])
-    funding Funding[]
-
+  project Project   @relation(fields: [projectId], references: [id])
+  funding Funding[]
 
   @@map("support_packages")
 }
 
 model ProjectComments {
-  id String @id @default(uuid())
-  userId String
-  projectId String
-  commentar String @db.LongText
+  id         String   @id @default(uuid())
+  userId     String
+  projectId  String
+  commentar  String   @db.LongText
   created_at DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
   project Project @relation(fields: [projectId], references: [id])
 
   @@map("project_comments")
 }
 
 model Blog {
-  id         String            @id @default(uuid())
-  userId     String
-  title      String
-  slug       String
-  content    String
-  thumbnail  String
-  status     String
+  id        String @id @default(uuid())
+  userId    String
+  title     String
+  slug      String
+  content   String
+  thumbnail String
+  status    String
 
-  created_at DateTime          @default(now())
-  updated_at DateTime          @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   categories mtm_Blog_Category[]
 
@@ -135,8 +133,8 @@ model Blog {
 }
 
 model Blog_Category {
-  id    String              @id @default(uuid())
-  name  String
+  id   String @id @default(uuid())
+  name String
 
   blogs mtm_Blog_Category[]
 
@@ -144,33 +142,33 @@ model Blog_Category {
 }
 
 model mtm_Blog_Category {
-  id         String         @id @default(uuid())
+  id         String @id @default(uuid())
   blogId     String
   categoryId String
 
-  blog       Blog           @relation(fields: [blogId], references: [id])
-  category   Blog_Category  @relation(fields: [categoryId], references: [id])
+  blog     Blog          @relation(fields: [blogId], references: [id])
+  category Blog_Category @relation(fields: [categoryId], references: [id])
 
   @@unique([blogId, categoryId])
   @@map("mtm_blog_category")
 }
 
 model Funding {
-  id              String   @id @default(uuid())
-  supportPackageId String   
-  userId          String
-  projectId       String
-  amount          Int
-  fundingType     String    
-  paymentType     String?   
-  status          String    
-  orderId         String    @unique 
-  snapToken       String?  
-  createdAt       DateTime  @default(now())
+  id               String   @id @default(uuid())
+  supportPackageId String
+  userId           String
+  projectId        String
+  amount           Int
+  fundingType      String
+  paymentType      String?
+  status           String
+  orderId          String   @unique
+  snapToken        String?
+  createdAt        DateTime @default(now())
 
-  user            User      @relation(fields: [userId], references: [id])
-  project         Project   @relation(fields: [projectId], references: [id])
-  supportPackage  SupportPackage @relation(fields: [supportPackageId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+  project        Project        @relation(fields: [projectId], references: [id])
+  supportPackage SupportPackage @relation(fields: [supportPackageId], references: [id])
 
   @@map("fundings")
 }

@@ -275,6 +275,14 @@ export class ProjectService {
             imageUrl: true,
           },
         },
+        supportPackages: {
+          select: {
+            id: true,
+            packageName: true,
+            nominal: true,
+            benefit: true,
+          },
+        },
       },
     });
   }
@@ -294,6 +302,14 @@ export class ProjectService {
             title: true,
             caption: true,
             imageUrl: true,
+          },
+        },
+        supportPackages: {
+          select: {
+            id: true,
+            packageName: true,
+            nominal: true,
+            benefit: true,
           },
         },
       },
@@ -568,6 +584,28 @@ export class ProjectService {
         );
       }
 
+      if (
+        dto.supportPackagesName &&
+        dto.nominal &&
+        dto.benefit &&
+        dto.supportPackagesName.length > 0
+      ) {
+        await prisma.supportPackage.deleteMany({
+          where: { projectId: id },
+        });
+
+        const supportPackagesData = dto.supportPackagesName.map((name, index) => ({
+          projectId: id,
+          packageName: name,
+          nominal: dto.nominal![index],
+          benefit: dto.benefit![index],
+        }));
+
+        await prisma.supportPackage.createMany({
+          data: supportPackagesData,
+        });
+      }
+
       return prisma.project.findUnique({
         where: { id },
         include: {
@@ -578,6 +616,14 @@ export class ProjectService {
               title: true,
               caption: true,
               imageUrl: true,
+            },
+          },
+          supportPackages: {
+            select: {
+              id: true,
+              packageName: true,
+              nominal: true,
+              benefit: true,
             },
           },
         },
