@@ -25,11 +25,10 @@ export class FundingService {
 
     const funding = await this.prisma.funding.create({
       data: {
-        supportPackageId: createFundingDto.supportPackageId,
+        supportPackageId: createFundingDto.projectId,
         projectId: createFundingDto.supportPackageId,
         userId,
         amount: createFundingDto.amount,
-        fundingType: isAnonymous ? 'anonymous' : 'public',
         status: 'pending',
         orderId,
       }
