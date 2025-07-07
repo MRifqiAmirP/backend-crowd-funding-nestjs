@@ -1,26 +1,45 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMidtranDto } from './dto/create-midtran.dto';
 import { UpdateMidtranDto } from './dto/update-midtran.dto';
+import * as midtrans from 'midtrans-client';
 
 @Injectable()
 export class MidtransService {
-  create(createMidtranDto: CreateMidtranDto) {
-    return 'This action adds a new midtran';
+  private snap: midtrans.Snap;
+
+  constructor() {
+    this.snap = new midtrans.Snap({
+      isProduction: false,
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY,
+    });
   }
 
-  findAll() {
-    return `This action returns all midtrans`;
+  async createTransaction(orderId: string, grossAmount: number, customer: {
+    firstName: string,
+    email: string
+  }) {
+    const parameter = {
+      transaction_details: {
+        order_id: orderId,
+        gross_amount: grossAmount,
+      },
+      customer_details: {
+        first_name: customer.firstName,
+        email: customer.email,
+      },
+    };
+
+    return this.snap.createTransaction(parameter);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} midtran`;
+  async generateSnapToken(createMidtranDto: CreateMidtranDto) {
+    const snap = await this.createTransaction(createMidtranDto.orderId, createMidtranDto.grossAmount, {
+      firstName: createMidtranDto.firstName,
+      email: createMidtranDto.email
+    });
+
+    return snap;
   }
 
-  update(id: number, updateMidtranDto: UpdateMidtranDto) {
-    return `This action updates a #${id} midtran`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} midtran`;
-  }
 }
