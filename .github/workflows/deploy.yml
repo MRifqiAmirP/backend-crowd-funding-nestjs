@@ -22,17 +22,13 @@ jobs:
         script: |
           set -euo pipefail
 
-          echo "🔧 Load NVM..."
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-          echo "📁 Pindah ke direktori proyek..."
           cd /home/proyeksiswa/crowd-funding/backend-crowd-funding-nestjs
 
-          echo "⬇️ Pull perubahan dari Git..."
           git pull origin main
 
-          echo "📦 Cek perubahan dependencies..."
           if git diff --name-only HEAD@{1} HEAD | grep -E 'package(-lock)?\.json'; then
             echo "🔄 package.json berubah, jalankan npm install..."
             npm install
@@ -40,14 +36,15 @@ jobs:
             echo "✅ Tidak ada perubahan dependencies."
           fi
 
-          echo "🛑 Hentikan proses PM2..."
+          echo "🛑 Hentikan semua proses PM2..."
           pm2 stop all
 
           echo "🧮 Backup database..."
-          mysqldump -u ${{ secrets.DB_USER }} -p${{ secrets.DB_PASSWORD }} \
+          mkdir -p /home/proyeksiswa/crowd-funding/db_backup
+          mysqldump --defaults-file=~/.my.cnf \
             --no-create-info --skip-triggers \
             --ignore-table=${{ secrets.DB_NAME }}._prisma_migrations \
-            ${{ secrets.DB_NAME }} > /tmp/db_data_backup.sql
+            ${{ secrets.DB_NAME }} > /home/proyeksiswa/crowd-funding/db_backup/db_data_backup.sql
 
           echo "🧹 Hapus folder migrations..."
           rm -rf ./src/prisma/migrations
@@ -56,13 +53,13 @@ jobs:
           npm run prisma:resmig
 
           echo "♻️ Restore data ke database..."
-          mysql -u ${{ secrets.DB_USER }} -p${{ secrets.DB_PASSWORD }} ${{ secrets.DB_NAME }} <<EOF
+          mysql --defaults-file=~/.my.cnf ${{ secrets.DB_NAME }} <<EOF
           SET FOREIGN_KEY_CHECKS=0;
-          SOURCE /tmp/db_data_backup.sql;
+          SOURCE /home/proyeksiswa/crowd-funding/db_backup/db_data_backup.sql;
           SET FOREIGN_KEY_CHECKS=1;
           EOF
 
-          echo "⚙️ Jalankan prisma generate dan build..."
+          echo "⚙️ Prisma generate dan build..."
           npm run prisma:generate
           npm run build
 
