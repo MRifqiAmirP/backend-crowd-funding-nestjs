@@ -1,4 +1,9 @@
-import { Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -14,11 +19,11 @@ import { UserService } from 'src/user/user.service';
 export class ProjectService {
   constructor(
     private prisma: PrismaService,
-    private userService: UserService
+    private userService: UserService,
   ) {}
 
   async create(dto: CreateProjectDto, userId: string) {
-    const user = await this.userService.findOne(userId)
+    const user = await this.userService.findOne(userId);
 
     if (!user) {
       throw new NotFoundException(`User with userId: ${userId} not found`);
@@ -42,12 +47,8 @@ export class ProjectService {
         const missingNames = lowercaseCategoryNames.filter(
           (name) => !foundNames.includes(name),
         );
-        throw new HttpException(
-          ApiResponse.error(
-            'Invalid categories',
-            `Category names not found: ${missingNames.join(', ')}`,
-          ),
-          HttpStatus.BAD_REQUEST,
+        throw new NotFoundException(
+          `Category names not found: ${missingNames.join(', ')}`,
         );
       }
     }
@@ -148,12 +149,8 @@ export class ProjectService {
         const missingNames = lowercaseCategoryNames.filter(
           (name) => !foundNames.includes(name),
         );
-        throw new HttpException(
-          ApiResponse.error(
-            'Invalid categories',
-            `Category names not found: ${missingNames.join(', ')}`,
-          ),
-          HttpStatus.BAD_REQUEST,
+        throw new NotFoundException(
+          `Category names not found: ${missingNames.join(', ')}`,
         );
       }
     }
@@ -163,6 +160,24 @@ export class ProjectService {
       ? `/uploads/thumbnails/${thumbnail.filename}`
       : null;
     const galleryFiles = files.galleries ?? [];
+
+    if (
+      !Array.isArray(dto.supportPackagesName) ||
+      !Array.isArray(dto.nominal) ||
+      !Array.isArray(dto.benefit) ||
+      dto.supportPackagesName.length === 0 ||
+      dto.nominal.length === 0 ||
+      dto.benefit.length === 0 ||
+      dto.supportPackagesName.length !== dto.nominal.length ||
+      dto.supportPackagesName.length !== dto.benefit.length
+    ) {
+      throw new HttpException(
+        ApiResponse.error(
+          '`supportPackagesName`, `nominal`, and `benefit` must be non-empty arrays with the same length',
+        ),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     const project = await this.prisma.$transaction(async (prisma) => {
       const newProject = await prisma.project.create({
@@ -197,6 +212,22 @@ export class ProjectService {
         });
       }
 
+      if (
+        dto.supportPackagesName &&
+        dto.nominal &&
+        dto.benefit &&
+        dto.supportPackagesName.length > 0
+      ) {
+        await prisma.supportPackage.createMany({
+          data: dto.supportPackagesName.map((name, index) => ({
+            projectId: newProject.id,
+            packageName: name,
+            nominal: dto.nominal![index],
+            benefit: dto.benefit![index],
+          })),
+        });
+      }
+
       return prisma.project.findUnique({
         where: { id: newProject.id },
         include: {
@@ -211,6 +242,14 @@ export class ProjectService {
               title: true,
               caption: true,
               imageUrl: true,
+            },
+          },
+          supportPackages: {
+            select: {
+              id: true,
+              packageName: true,
+              nominal: true,
+              benefit: true,
             },
           },
         },
@@ -375,6 +414,7 @@ export class ProjectService {
   //   console.log('Final update result:', result);
   //   return result;
   // }
+
   async update(
     id: string,
     dto: UpdateProjectDto,
@@ -382,15 +422,12 @@ export class ProjectService {
     thumbnailFile: Express.Multer.File | null,
     userId: string,
   ) {
-    const project = await this.prisma.project.findFirst({
+    const project = await this.prisma.project.findUnique({
       where: { id, userId },
     });
 
     if (!project) {
-      throw new HttpException(
-        ApiResponse.error('Project not found', `Invalid projectId: ${id}`),
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(`Project not found with ID: ${id}`);
     }
 
     const result = await this.prisma.$transaction(async (prisma) => {
@@ -412,7 +449,6 @@ export class ProjectService {
         },
       });
 
-      // Update categories (boleh dikosongkan)
       if (dto.categoryNames !== undefined) {
         await prisma.mtm_Project_Category.deleteMany({
           where: { projectId: id },
@@ -501,6 +537,37 @@ export class ProjectService {
         });
       }
 
+      if (
+        dto.GalleryIds &&
+        dto.updateCaption &&
+        dto.GalleryIds.length === dto.updateCaption.length
+      ) {
+        for (let i = 0; i < dto.GalleryIds.length; i++) {
+          const galleryId = dto.GalleryIds[i];
+          const caption = dto.updateCaption[i];
+
+          await prisma.gallery.updateMany({
+            where: {
+              id: galleryId,
+              projectId: id,
+            },
+            data: {
+              caption,
+            },
+          });
+        }
+      } else if (
+        (dto.GalleryIds && !dto.updateCaption) ||
+        (!dto.GalleryIds && dto.updateCaption)
+      ) {
+        throw new HttpException(
+          ApiResponse.error(
+            'GalleryIds and updateCaption must be provided together and have the same length.',
+          ),
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       return prisma.project.findUnique({
         where: { id },
         include: {
@@ -536,7 +603,6 @@ export class ProjectService {
     }
 
     return this.prisma.$transaction(async (prisma) => {
-      // Hapus file gambar gallery
       for (const gallery of project.galleries) {
         if (gallery.imageUrl) {
           const galleryPath = path.join(
@@ -578,6 +644,14 @@ export class ProjectService {
       });
 
       await prisma.gallery.deleteMany({
+        where: { projectId: id },
+      });
+
+      await prisma.supportPackage.deleteMany({
+        where: { projectId: id },
+      });
+
+      await prisma.projectComments.deleteMany({
         where: { projectId: id },
       });
 

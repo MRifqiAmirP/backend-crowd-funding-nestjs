@@ -72,4 +72,32 @@ export class CreateProjectWithGalleriesDto {
     return value;
   })
   galleryCaptions?: string[];
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') return [value];
+    return value;
+  })
+  supportPackagesName?: string[];
+
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') return [Number(value)];
+    if (Array.isArray(value)) return value.map((v) => Number(v));
+    return value;
+  })
+  nominal?: number[];
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') return [value];
+    return value;
+  })
+  benefit?: string[];
 }
