@@ -46,6 +46,7 @@ model Project {
   galleries  Gallery[]
   categories Mtm_Project_Category[]
   comentar ProjectComments[]
+  supportPackages SupportPackage[]
 
   @@map("projects")
 }
@@ -81,6 +82,21 @@ model Gallery {
   project Project @relation(fields: [projectId], references: [id])
 
   @@map("galleries")
+}
+
+model SupportPackage {
+  id String @id @default(uuid())
+  projectId String
+  packageName String @db.VarChar(100)
+  nominal Int
+  benefit String @db.LongText
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@map("support_packages")
 }
 
 model ProjectComments {

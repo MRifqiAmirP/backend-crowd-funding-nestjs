@@ -17,7 +17,7 @@ export class BlogService {
 
     const category = await this.prisma.blog_Category.findUnique({
       where: {
-        id: firstCategoryId, // ✅ FIXED
+        id: firstCategoryId,
       },
     });
 
