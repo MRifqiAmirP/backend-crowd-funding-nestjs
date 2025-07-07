@@ -1,15 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode } from '@nestjs/common';
 import { SupportPackageService } from './support-package.service';
 import { CreateSupportPackageDto } from './dto/create-support-package.dto';
 import { UpdateSupportPackageDto } from './dto/update-support-package.dto';
+import { ApiResponse } from 'src/common/response/api-response';
 
-@Controller('support-package')
+@Controller('api/support-package')
 export class SupportPackageController {
-  constructor(private readonly supportPackageService: SupportPackageService) {}
+  constructor(private readonly supportPackageService: SupportPackageService) { }
 
   @Post()
-  create(@Body() createSupportPackageDto: CreateSupportPackageDto) {
-    return this.supportPackageService.create(createSupportPackageDto);
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createSupportPackageDto: CreateSupportPackageDto) {
+    try {
+        const result = await this.supportPackageService.create(createSupportPackageDto);
+        return ApiResponse.success(result, 'Support Package created successfully');
+      } catch (error) {
+        return ApiResponse.error('Failed to create support package', [error.message]);
+      }
+  }
+
+  @Get(':projectId')
+  @HttpCode(HttpStatus.OK)
+  async findByProject(@Param('projectId') projectId: string) {
+    try {
+      const result = await this.supportPackageService.findByProject(projectId);
+      return ApiResponse.success(result, 'Support Packages fetched successfully');
+    } catch (error) {
+      return ApiResponse.error('Failed to fetch support packages', [error.message]);
+    }
   }
 
   @Get()
