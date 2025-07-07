@@ -23,7 +23,7 @@
     "prisma:deploy": "npx prisma migrate deploy --schema=src/prisma/schema.prisma",
     "prisma:studio": "npx prisma studio --schema=src/prisma/schema.prisma",
     "prisma:reset": "npx prisma migrate reset --schema=src/prisma/schema.prisma",
-    "prisma:resmig": "npx prisma migrate reset --schema=src/prisma/schema.prisma && npx prisma migrate dev --name init --schema=src/prisma/schema.prisma"
+    "prisma:resmig": "npx prisma migrate reset --schema=src/prisma/schema.prisma --force --skip-seed && npx prisma migrate dev --name init --schema=src/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
