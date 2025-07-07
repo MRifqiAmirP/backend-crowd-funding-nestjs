@@ -2,33 +2,19 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { MidtransService } from './midtrans.service';
 import { CreateMidtranDto } from './dto/create-midtran.dto';
 import { UpdateMidtranDto } from './dto/update-midtran.dto';
+import { ApiResponse } from 'src/common/response/api-response';
 
 @Controller('midtrans')
 export class MidtransController {
   constructor(private readonly midtransService: MidtransService) {}
 
   @Post()
-  create(@Body() createMidtranDto: CreateMidtranDto) {
-    return this.midtransService.create(createMidtranDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.midtransService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.midtransService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMidtranDto: UpdateMidtranDto) {
-    return this.midtransService.update(+id, updateMidtranDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.midtransService.remove(+id);
+  async create(@Body() createMidtranDto: CreateMidtranDto) {
+    try {
+      const result = await this.midtransService.generateSnapToken(createMidtranDto);
+      return ApiResponse.success(result, 'Snap token generated successfully');
+    } catch (error) {
+      return ApiResponse.error('Failed to generate snap token', [error.message]);
+    }
   }
 }
