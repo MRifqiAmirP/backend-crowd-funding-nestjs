@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class MidtransService {
   private snap: midtrans.Snap;
-  
+
 
   constructor(
     private prisma: PrismaService
@@ -46,45 +46,29 @@ export class MidtransService {
     return snap;
   }
 
-  async handleNotification(notification: any) {
-    const { order_id, transaction_status, fraud_status } = notification;
+  async handleNotification(payload: any) {
+    const { transaction_status, order_id, payment_type } = payload;
 
-    console.log('📦 Midtrans Notification:', notification);
+    const status = {
+      'settlement': 'success',
+      'capture': 'success',
+      'pending': 'pending',
+      'deny': 'failed',
+      'expire': 'expired',
+      'cancel': 'cancelled',
+    }[transaction_status] || 'unknown';
 
-    if (transaction_status === 'capture') {
-      if (fraud_status === 'challenge') {
-        // Tunggu approval manual
-      } else if (fraud_status === 'accept') {
-        await this.markFundingAsPaid(order_id);
-      }
-    } else if (transaction_status === 'settlement') {
-      await this.markFundingAsPaid(order_id);
-    } else if (transaction_status === 'cancel' || transaction_status === 'expire') {
-      await this.markFundingAsFailed(order_id);
-    } else if (transaction_status === 'pending') {
-      await this.markFundingAsPending(order_id);
-    }
-  }
-
-  private async markFundingAsPaid(orderId: string) {
     await this.prisma.funding.updateMany({
-      where: { orderId },
-      data: { status: 'PAID' },
+      where: { orderId: order_id },
+      data: {
+        status,
+        paymentType: payment_type,
+      },
     });
-  }
 
-  private async markFundingAsPending(orderId: string) {
-    await this.prisma.funding.updateMany({
-      where: { orderId },
-      data: { status: 'PENDING' },
-    });
-  }
+    // (Optional) Send email notification here if needed
 
-  private async markFundingAsFailed(orderId: string) {
-    await this.prisma.funding.updateMany({
-      where: { orderId },
-      data: { status: 'FAILED' },
-    });
+    return { received: true };
   }
 }
 

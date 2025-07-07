@@ -11,9 +11,10 @@ import { CommentarProjectModule } from './commentar-project/commentar-project.mo
 import { BlogModule } from './blog/blog.module';
 import { SupportPackageModule } from './support-package/support-package.module';
 import { MidtransModule } from './midtrans/midtrans.module';
+import { FundingModule } from './funding/funding.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, GalleryModule, CommentarProjectModule, BlogModule, SupportPackageModule, MidtransModule],
+  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, GalleryModule, CommentarProjectModule, BlogModule, SupportPackageModule, MidtransModule, FundingModule],
   controllers: [AppController],
   providers: [AppService],
 })

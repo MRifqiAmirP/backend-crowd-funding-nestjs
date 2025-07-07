@@ -8,5 +8,6 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [PrismaModule, AuthModule],
   controllers: [MidtransController],
   providers: [MidtransService],
+  exports: [MidtransService]
 })
 export class MidtransModule {}

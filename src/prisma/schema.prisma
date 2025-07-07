@@ -159,7 +159,6 @@ model Funding {
   userId           String
   projectId        String
   amount           Int
-  fundingType      String
   paymentType      String?
   status           String
   orderId          String   @unique
