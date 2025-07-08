@@ -17,16 +17,19 @@ export class FundingService {
   async create(createFundingDto: CreateFundingDto, userId: string) {
     const user = await this.userService.findOne(userId);
     const support = await this.prisma.supportPackage.findUnique({ where: { id: createFundingDto.supportPackageId } });
+    const project = await this.prisma.project.findUnique({
+      where: { id: createFundingDto.projectId },
+    });
 
-    if (!user || !support) throw new NotFoundException('User or Support Package not found');
+    if (!user || !support || !project) throw new NotFoundException('User or Support or Project Package not found');
 
-    const orderId = `ORDER-${Date.now()}-${userId}`;
+    const orderId = `ORD-${Date.now()}`;
     const isAnonymous = createFundingDto.isAnonymous;
 
     const funding = await this.prisma.funding.create({
       data: {
-        supportPackageId: createFundingDto.projectId,
-        projectId: createFundingDto.supportPackageId,
+        supportPackageId: createFundingDto.supportPackageId,
+        projectId: createFundingDto.projectId,
         userId,
         amount: createFundingDto.amount,
         status: 'pending',
