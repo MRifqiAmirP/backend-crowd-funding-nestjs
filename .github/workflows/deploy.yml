@@ -1,4 +1,4 @@
-name: Automation Deploy to VPS
+name: 🚀 Automation Deploy to VPS
 
 on:
   push:
@@ -10,16 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Kode
+    - name: 📦 Checkout Kode
       uses: actions/checkout@v3
 
-    - name: SSH dan Deploy ke VPS
+    - name: 🔐 SSH dan Deploy ke VPS
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_SSH_KEY }}
         script: |
+          set -euo pipefail
+
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
@@ -28,18 +30,40 @@ jobs:
           git pull origin main
 
           if git diff --name-only HEAD@{1} HEAD | grep -E 'package(-lock)?\.json'; then
-            echo "🔄 Detected change in package.json or package-lock.json, running npm install..."
+            echo "🔄 package.json berubah, jalankan npm install..."
             npm install
           else
-            echo "✅ No changes in dependencies, skipping npm install."
+            echo "✅ Tidak ada perubahan dependencies."
           fi
 
+          echo "🛑 Hentikan semua proses PM2..."
           pm2 stop all
 
+          echo "🧮 Backup database..."
+          mkdir -p /home/proyeksiswa/crowd-funding/db_backup
+          mysqldump --defaults-file=~/.my.cnf \
+            --no-create-info --skip-triggers \
+            --ignore-table=${{ secrets.DB_NAME }}._prisma_migrations \
+            ${{ secrets.DB_NAME }} > /home/proyeksiswa/crowd-funding/db_backup/db_data_backup.sql
+
+          echo "🧹 Hapus folder migrations..."
+          rm -rf ./src/prisma/migrations
+
+          echo "🔁 Jalankan prisma:resmig..."
+          npm run prisma:resmig
+
+          echo "♻️ Restore data ke database..."
+          mysql --defaults-file=~/.my.cnf ${{ secrets.DB_NAME }} <<EOF
+          SET FOREIGN_KEY_CHECKS=0;
+          SOURCE /home/proyeksiswa/crowd-funding/db_backup/db_data_backup.sql;
+          SET FOREIGN_KEY_CHECKS=1;
+          EOF
+
+          echo "⚙️ Prisma generate dan build..."
           npm run prisma:generate
           npm run build
 
-          # pm2 restart backend-dev || pm2 start src/main.ts --name backend-dev --interpreter ./node_modules/.bin/ts-node
+          echo "🚀 Jalankan ulang PM2..."
           pm2 flush
           pm2 restart all || pm2 start dist/main.js --name backend-dev
           pm2 save
