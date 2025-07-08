@@ -47,16 +47,6 @@ export class MidtransService {
     return snap;
   }
 
-  verifySignature(notification: any): boolean {
-    const serverKey = process.env.MIDTRANS_SERVER_KEY;
-    const { order_id, status_code, gross_amount, signature_key } = notification;
-
-    const rawSignature = order_id + status_code + gross_amount + serverKey;
-    const hash = crypto.createHash('sha512').update(rawSignature).digest('hex');
-
-    return signature_key === hash;
-  }
-
 
 }
 

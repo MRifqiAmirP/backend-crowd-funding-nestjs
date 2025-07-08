@@ -7,7 +7,6 @@ import { JwtCookieRolesGuard } from 'src/auth/guards/jwt-cookie-roles.guard';
 import { FundingService } from 'src/funding/funding.service';
 
 @Controller('api/midtrans')
-@UseGuards(JwtCookieRolesGuard)
 export class MidtransController {
   constructor(
     private readonly midtransService: MidtransService,
@@ -15,6 +14,7 @@ export class MidtransController {
   ) { }
 
   @Post('token')
+  @UseGuards(JwtCookieRolesGuard)
   async create(@Body() createMidtranDto: CreateMidtranDto) {
     try {
       const result = await this.midtransService.generateSnapToken(createMidtranDto);
@@ -25,20 +25,14 @@ export class MidtransController {
   }
 
   @Post('notification')
-  @HttpCode(HttpStatus.CREATED)
-  async handleNotification(@Req() req: Request) {
-
+  @HttpCode(HttpStatus.OK)
+  async handleMidtransWebhook(@Body() body: any) {
     try {
-      const notification = req.body;
-
-      const isValid = this.midtransService.verifySignature(notification);
-      if (!isValid) {
-        return ApiResponse.error('Invalid signature');
-      }
-
-      return ApiResponse.success(notification, 'Notification send successfully');
+      await this.fundingService.handleMidtransNotification(body);
+      return { success: true };
     } catch (error) {
-      return ApiResponse.error('Failed to send notification', [error.message]);
+      console.error('Webhook error:', error);
+      return { success: false, message: error.message };
     }
   }
 

@@ -37,10 +37,14 @@ export class FundingService {
       }
     });
 
+    const firstName = isAnonymous ? 'Anonim' : user.first_name.split(' ')[0];
+    const lastName = isAnonymous ? '' : user.last_name;
+
     const snap = await this.midtransService.createTransaction(orderId, createFundingDto.amount, {
-      firstName: isAnonymous ? 'Anonymous' : user.first_name.split(' ')[0],
+      firstName,
       email: user.email,
     });
+
 
     await this.prisma.funding.update({
       where: { id: funding.id },
