@@ -1,14 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, UseGuards, UnauthorizedException, HttpCode, HttpStatus } from '@nestjs/common';
 import { MidtransService } from './midtrans.service';
 import { CreateMidtranDto } from './dto/create-midtran.dto';
 import { UpdateMidtranDto } from './dto/update-midtran.dto';
 import { ApiResponse } from 'src/common/response/api-response';
 import { JwtCookieRolesGuard } from 'src/auth/guards/jwt-cookie-roles.guard';
+import { FundingService } from 'src/funding/funding.service';
 
-@Controller('api/payments')
+@Controller('api/midtrans')
 @UseGuards(JwtCookieRolesGuard)
 export class MidtransController {
-  constructor(private readonly midtransService: MidtransService) {}
+  constructor(
+    private readonly midtransService: MidtransService,
+    private fundingService: FundingService
+  ) { }
 
   @Post('token')
   async create(@Body() createMidtranDto: CreateMidtranDto) {
@@ -20,15 +24,24 @@ export class MidtransController {
     }
   }
 
-  @Post('webhook')
-  async handleNotification(@Body() payload: any) {
+  @Post('notification')
+  @HttpCode(HttpStatus.CREATED)
+  async handleNotification(@Req() req: Request) {
+
     try {
-      const result = await this.midtransService.handleNotification(payload);
-      return ApiResponse.success(result, 'Snap token generated successfully');
+      const notification = req.body;
+
+      const isValid = this.midtransService.verifySignature(notification);
+      if (!isValid) {
+        return ApiResponse.error('Invalid signature');
+      }
+
+      return ApiResponse.success(notification, 'Notification send successfully');
     } catch (error) {
-      return ApiResponse.error('Failed to generate snap token', [error.message]);
+      return ApiResponse.error('Failed to send notification', [error.message]);
     }
   }
+
 
 
 }

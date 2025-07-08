@@ -52,4 +52,31 @@ export class FundingService {
       redirectUrl: snap.redirect_url,
     };
   }
+
+  async handleMidtransNotification(notification: any) {
+    const { order_id, transaction_status, payment_type } = notification;
+
+    const funding = await this.prisma.funding.findUnique({
+      where: { orderId: order_id },
+    });
+
+    if (!funding) {
+      throw new NotFoundException('Funding not found');
+    }
+
+    let status = 'pending';
+    if (transaction_status === 'settlement' || transaction_status === 'capture') {
+      status = 'success';
+    } else if (transaction_status === 'cancel' || transaction_status === 'expire' || transaction_status === 'deny') {
+      status = 'failed';
+    }
+
+    await this.prisma.funding.update({
+      where: { id: funding.id },
+      data: {
+        status,
+        paymentType: payment_type,
+      },
+    });
+  }
 }
