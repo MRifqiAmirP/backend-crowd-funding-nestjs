@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMidtranDto } from './dto/create-midtran.dto';
 import { UpdateMidtranDto } from './dto/update-midtran.dto';
 import * as midtrans from 'midtrans-client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import * as crypto from "crypto"
 
 @Injectable()
 export class MidtransService {
@@ -46,30 +47,17 @@ export class MidtransService {
     return snap;
   }
 
-  async handleNotification(payload: any) {
-    const { transaction_status, order_id, payment_type } = payload;
+  verifySignature(notification: any): boolean {
+    const serverKey = process.env.MIDTRANS_SERVER_KEY;
+    const { order_id, status_code, gross_amount, signature_key } = notification;
 
-    const status = {
-      'settlement': 'success',
-      'capture': 'success',
-      'pending': 'pending',
-      'deny': 'failed',
-      'expire': 'expired',
-      'cancel': 'cancelled',
-    }[transaction_status] || 'unknown';
+    const rawSignature = order_id + status_code + gross_amount + serverKey;
+    const hash = crypto.createHash('sha512').update(rawSignature).digest('hex');
 
-    await this.prisma.funding.updateMany({
-      where: { orderId: order_id },
-      data: {
-        status,
-        paymentType: payment_type,
-      },
-    });
-
-    // (Optional) Send email notification here if needed
-
-    return { received: true };
+    return signature_key === hash;
   }
+
+
 }
 
 
