@@ -12,9 +12,10 @@ import { BlogModule } from './blog/blog.module';
 import { SupportPackageModule } from './support-package/support-package.module';
 import { MidtransModule } from './midtrans/midtrans.module';
 import { FundingModule } from './funding/funding.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, GalleryModule, CommentarProjectModule, BlogModule, SupportPackageModule, MidtransModule, FundingModule],
+  imports: [PrismaModule, UserModule, AuthModule, ProjectModule, CategoryModule, GalleryModule, CommentarProjectModule, BlogModule, SupportPackageModule, MidtransModule, FundingModule, MailerModule],
   controllers: [AppController],
   providers: [AppService],
 })
