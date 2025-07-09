@@ -4,6 +4,7 @@ import { UpdateFundingDto } from './dto/update-funding.dto';
 import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MidtransService } from 'src/midtrans/midtrans.service';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class FundingService {
@@ -11,7 +12,8 @@ export class FundingService {
   constructor(
     private userService: UserService,
     private prisma: PrismaService,
-    private midtransService: MidtransService
+    private midtransService: MidtransService,
+    private mailerService: MailerService,
   ) { }
 
   async create(createFundingDto: CreateFundingDto, userId: string) {
@@ -58,10 +60,16 @@ export class FundingService {
   }
 
   async handleMidtransNotification(notification: any) {
+
     const { order_id, transaction_status, payment_type } = notification;
 
     const funding = await this.prisma.funding.findUnique({
       where: { orderId: order_id },
+      include: {
+        user: true,
+        project: true,
+        supportPackage: true,
+      },
     });
 
     if (!funding) {
@@ -82,5 +90,21 @@ export class FundingService {
         paymentType: payment_type,
       },
     });
+
+    console.log("status: ", status);
+
+
+    if (status === 'success') {
+      await this.mailerService.send(
+        funding.user.email,
+        'Terima Kasih atas Donasi Anda',
+        'funding-success',
+        {
+          firstName: funding.user.first_name,
+          amount: funding.amount,
+          projectName: funding.project.projectName,
+        },
+      );
+    }
   }
 }
