@@ -28,6 +28,7 @@ export class MidtransController {
   @HttpCode(HttpStatus.OK)
   async handleMidtransWebhook(@Body() body: any) {
     try {
+      console.log("📩 Webhook diterima:");
       await this.fundingService.handleMidtransNotification(body);
       return { success: true };
     } catch (error) {
