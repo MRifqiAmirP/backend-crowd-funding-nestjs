@@ -50,10 +50,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const dir = path.join(__dirname, 'mail', 'templates');
-
-      console.log(dir);
-
       const validatedUser = await this.authService.validatedUser(dto.email, dto.password);
       const result = await this.authService.login(validatedUser, res);
       return ApiResponse.success({ idToken: result.idToken }, 'User login successful');
