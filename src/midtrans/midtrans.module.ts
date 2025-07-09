@@ -5,9 +5,11 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { FundingService } from 'src/funding/funding.service';
 import { UserService } from 'src/user/user.service';
+import { MailerModule } from 'src/mailer/mailer.module';
+
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, AuthModule, MailerModule],
   controllers: [MidtransController],
   providers: [MidtransService, FundingService, UserService],
   exports: [MidtransService]
