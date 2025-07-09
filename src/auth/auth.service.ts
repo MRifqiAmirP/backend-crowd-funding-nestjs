@@ -10,6 +10,7 @@ import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 import { TokenService } from './utils/token.service';
 import { AuthMailService } from './mail/mail.service';
 import { ResetPasswordDto } from './dto/reset-password';
+import { MailerService } from 'src/mailer/mailer.service';
 
 
 @Injectable()
@@ -19,7 +20,7 @@ export class AuthService {
     private jwtService: JwtService,
     private userService: UserService,
     private tokenService: TokenService,
-    private authMailService: AuthMailService
+    private mailService: MailerService
   ) { }
 
   async validatedUser(email: string, password: string) {
@@ -126,7 +127,7 @@ export class AuthService {
       email: user.email
     });
 
-    await this.authMailService.sendResetPassword(user.email, token);
+    await this.mailService.sendResetPassword(user.email, token);
   }
 
   async resetPassword(resetPasswordDTO: ResetPasswordDto) {
