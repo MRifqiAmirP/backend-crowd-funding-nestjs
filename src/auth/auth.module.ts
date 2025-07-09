@@ -9,38 +9,17 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import * as path from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { TokenService } from './utils/token.service';
-import { AuthMailService } from './mail/mail.service';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Module({
   imports: [
     PassportModule,
-
     forwardRef(() => UserModule),
-
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'default_secret',
       signOptions: { expiresIn: '15m' },
     }),
-
-    MailerModule.forRoot({
-      transport: {
-        host: process.env.MAIL_HOST,
-        port: Number(process.env.MAIL_PORT),
-        secure: false,
-        auth: {
-          user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASS,
-        },
-      },
-      defaults: {
-         from: '"No Reply" <noreply@example.com>',
-      },
-      template: {
-        dir: path.join(process.cwd(), 'src', 'auth', 'mail', 'templates'),
-        adapter: new HandlebarsAdapter(), // atau EjsAdapter()
-        options: { strict: true },
-      },
-    })
+    MailerModule
   ],
 
   controllers: [AuthController],
@@ -49,15 +28,14 @@ import { AuthMailService } from './mail/mail.service';
     AuthService, 
     JwtCookieRolesGuard,
     TokenService,
-    AuthMailService
+    MailerService    
   ],
 
   exports: [
     AuthService,
     JwtCookieRolesGuard,
     JwtModule,
-    TokenService,
-    AuthMailService
+    TokenService
   ],
 })
 export class AuthModule { }
